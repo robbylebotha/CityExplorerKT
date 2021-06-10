@@ -14,10 +14,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    val cityEplorer = CityExplore(this)
+    val cityExplorer = CityExplore(this)
     val TAG = "city_explorer_kotlin"
     var progressDialog: ProgressDialog? = null
-    //these swithces will prevent spinners from automatically selcting first option on load
+    //these switches will prevent spinners from automatically selecting first option on load
     var spinnerMallSwitch = 1
     var spinnerCitySwitch = 1
     var spinnerShopSwitch = 1
@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //Build dialog
         progressDialog = ProgressDialog(this)
         progressDialog!!.setTitle("Please Wait")
         progressDialog!!.setMessage("Loading ...")
@@ -38,8 +39,11 @@ class MainActivity : AppCompatActivity() {
             //get information from City Explorer Lirbary/SDK
             //oncreate we get the city spinner
             progressDialog!!.show()
-            cityEplorer.getCities(object : CityExploreCallBack{
+            cityExplorer.getCities(object : CityExploreCallBack{
                 override fun onSuccess(list: ArrayList<String>?) {
+                    //SDK has returned a successfull result. Now you can use the list.
+                    //in this case, im using list to create another spinner, to display a list
+                    //of malls in the city
                     if (list != null) {
                         var adapter = ArrayAdapter( applicationContext, android.R.layout.simple_spinner_item, list)
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -59,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                                 val cityName = parent!!.getItemAtPosition(position).toString()
                                 Log.i(TAG, cityName)
                                 progressDialog!!.show()
-                                cityEplorer.getMalls(cityName, object : CityExploreCallBack{
+                                cityExplorer.getMalls(cityName, object : CityExploreCallBack{
                                     override fun onSuccess(list: ArrayList<String>?) {
                                         Log.i(TAG, list!!.get(0))
                                         spinnerMallSwitch = 1 //reset switches
@@ -85,6 +89,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onFail(message: String?) {
+                    //SDK has failed to get data, message is the error message
+                    //Now you can write your logic to deal with it
                     if (message != null) {
                         Log.i(TAG, message)
                     }
@@ -115,7 +121,7 @@ class MainActivity : AppCompatActivity() {
                 val mallName = parent!!.getItemAtPosition(position).toString()
                 Log.i("city", mallName)
                 progressDialog!!.show()
-                cityEplorer.getShops(mallName, object : CityExploreCallBack{
+                cityExplorer.getShops(mallName, object : CityExploreCallBack{
                     override fun onSuccess(list: ArrayList<String>?) {
                         Log.i(TAG, "Got shops")
                         createShopSpinner(list!!)
