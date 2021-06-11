@@ -1,4 +1,4 @@
-package it.ads.app.cityexplorerkt
+package it.ads.app.cityexplorerkt.activities
 
 import android.app.ProgressDialog
 import android.os.Bundle
@@ -7,9 +7,17 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import it.ads.app.city_explorer_sdk.CityExplore
 import it.ads.app.city_explorer_sdk.interfaces.CityExploreCallBack
 import it.ads.app.city_explorer_sdk.network.CheckNetwork
+import it.ads.app.cityexplorerkt.R
+import androidx.lifecycle.Observer
+import it.ads.app.cityexplorerkt.adapters.ShopsAdapter
+import it.ads.app.cityexplorerkt.models.Shop
+import it.ads.app.cityexplorerkt.viewmodels.ShopViewModel
+import it.ads.app.cityexplorerkt.viewmodelsfactories.ShopViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -21,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     var spinnerMallSwitch = 1
     var spinnerCitySwitch = 1
     var spinnerShopSwitch = 1
+    private lateinit var listShops: MutableList<Shop>
+    private lateinit var adapterShop: ShopsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -31,6 +41,13 @@ class MainActivity : AppCompatActivity() {
         progressDialog = ProgressDialog(this)
         progressDialog!!.setTitle("Please Wait")
         progressDialog!!.setMessage("Loading ...")
+
+        recycler_main.layoutManager = LinearLayoutManager(this@MainActivity)
+        listShops = mutableListOf<Shop>()
+        adapterShop = ShopsAdapter(this,
+            listShops
+        )
+        recycler_main.adapter = adapterShop
 
         //check if there is network
         var hasNetwork = CheckNetwork(applicationContext)
@@ -78,12 +95,9 @@ class MainActivity : AppCompatActivity() {
                                         Log.i(TAG, message!!)
                                         progressDialog!!.hide()
                                     }
-
                                 })
                             }
-
                         }
-
                     }
                     progressDialog!!.hide()
                 }
@@ -99,6 +113,22 @@ class MainActivity : AppCompatActivity() {
 
             })
         }
+    }
+
+    /**
+     * Create a list of shops
+     */
+    fun createShopsList(mallName: String){
+        Log.i(TAG, "Setting shop list for $mallName")
+
+        Log.i(TAG, listShops.toString())
+        val shopViewModel = ViewModelProviders.of(this,ShopViewModelFactory(applicationContext, mallName)).get(ShopViewModel::class.java)
+        shopViewModel.getData().observe(this,
+            Observer<ArrayList<Shop>> { t ->
+                listShops.clear()
+                t?.let { listShops.addAll(it) }
+                adapterShop!!.notifyDataSetChanged()
+            })
     }
 
     /**
@@ -125,6 +155,7 @@ class MainActivity : AppCompatActivity() {
                     override fun onSuccess(list: ArrayList<String>?) {
                         Log.i(TAG, "Got shops")
                         createShopSpinner(list!!)
+                        createShopsList(mallName)
                         progressDialog!!.hide()
                     }
 
