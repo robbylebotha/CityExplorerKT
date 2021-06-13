@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         //Build dialog
+        //TODO stop using depracated progress dialog
         progressDialog = ProgressDialog(this)
         progressDialog!!.setTitle("Please Wait")
         progressDialog!!.setMessage("Loading ...")
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         if (hasNetwork.isAvailable){
             Log.i(TAG, "network is available")
             //get information from City Explorer Lirbary/SDK
-            //oncreate we get the city spinner
+            //oncreate we get all cities and set them in spinner
             progressDialog!!.show()
             cityExplorer.getCities(object : CityExploreCallBack{
                 override fun onSuccess(list: ArrayList<String>?) {
@@ -88,6 +89,7 @@ class MainActivity : AppCompatActivity() {
                                         spinnerMallSwitch = 1 //reset switches
                                         mallSpinner.adapter = null
                                         createMallSpinner(list)
+                                        creatAllShopsList(cityName)
                                         progressDialog!!.hide()
                                     }
 
@@ -129,6 +131,7 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Create a list of shops
+     * @param mallName name of mall
      */
     fun createShopsList(mallName: String){
 
@@ -166,6 +169,44 @@ class MainActivity : AppCompatActivity() {
         recycler_main.adapter?.notifyDataSetChanged()
     }
 
+    /**
+     * Creat a list of ALL shops in a city
+     * @param cityName name of city
+     */
+    fun creatAllShopsList(cityName: String){
+        //clear previous list
+        viewModel.clear()
+
+        val cityExplore = CityExplore(applicationContext)
+        cityExplore.getShopsInCity(cityName, object : CityExploreCallBack{
+            override fun onSuccess(list: ArrayList<String>?) {
+
+                var shopNameList = ArrayList<Shop>()
+                try {
+                    if (list != null) {
+                        for(shopname in list){
+                            var shop = Shop(shopname, "www.$shopname.co.za")
+                            shopNameList.add(shop)
+                            viewModel.add(shop)
+                        }
+                        Log.i(TAG, "Shop list: $shopNameList")
+                    }
+
+                }catch (e: Exception){
+                    Log.e(TAG,e.toString())
+                }
+
+                Log.i(TAG, "response success from SDK. list: "+list!!.toString())
+            }
+
+            override fun onFail(message: String?) {
+                Log.e(TAG, "Failed to get shops: $message")
+            }
+
+        })
+
+        recycler_main.adapter?.notifyDataSetChanged()
+    }
     /**
      * Create Mall Spinner
      */
