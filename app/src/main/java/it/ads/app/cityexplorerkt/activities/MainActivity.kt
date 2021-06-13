@@ -20,6 +20,7 @@ import it.ads.app.cityexplorerkt.models.Shop
 import it.ads.app.cityexplorerkt.viewmodels.ShopViewModel
 import it.ads.app.cityexplorerkt.viewmodelsfactories.ShopViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.toast
 import java.lang.Exception
 import java.util.*
 
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
 
         //check if there is network
-        var hasNetwork = CheckNetwork(applicationContext)
+        val hasNetwork = CheckNetwork(applicationContext)
         if (hasNetwork.isAvailable){
             Log.i(TAG, "network is available")
             //get information from City Explorer Lirbary/SDK
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
                     //in this case, im using list to create another spinner, to display a list
                     //of malls in the city
                     if (list != null) {
-                        var adapter = ArrayAdapter( applicationContext, android.R.layout.simple_spinner_item, list)
+                        val adapter = ArrayAdapter( applicationContext, android.R.layout.simple_spinner_item, list)
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         citySpinner.adapter = adapter
                         citySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -95,6 +96,7 @@ class MainActivity : AppCompatActivity() {
 
                                     override fun onFail(message: String?) {
                                         Log.i(TAG, message!!)
+                                        toast(message)
                                         progressDialog!!.hide()
                                     }
                                 })
@@ -109,6 +111,7 @@ class MainActivity : AppCompatActivity() {
                     //Now you can write your logic to deal with it
                     if (message != null) {
                         Log.i(TAG, message)
+                        toast(message.toString())
                     }
                     progressDialog!!.hide()
                 }
@@ -142,11 +145,11 @@ class MainActivity : AppCompatActivity() {
         cityExplore.getShops(mallName, object : CityExploreCallBack{
             override fun onSuccess(list: ArrayList<String>?) {
 
-                var shopNameList = ArrayList<Shop>()
+                val shopNameList = ArrayList<Shop>()
                 try {
                     if (list != null) {
                         for(shopname in list){
-                            var shop = Shop(shopname, "www.$shopname.co.za")
+                            val shop = Shop(shopname, "www.$shopname.co.za")
                             shopNameList.add(shop)
                             viewModel.add(shop)
                         }
@@ -162,6 +165,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onFail(message: String?) {
                 Log.e(TAG, "Failed to get shops: $message")
+                toast(message.toString())
             }
 
         })
@@ -181,11 +185,11 @@ class MainActivity : AppCompatActivity() {
         cityExplore.getShopsInCity(cityName, object : CityExploreCallBack{
             override fun onSuccess(list: ArrayList<String>?) {
 
-                var shopNameList = ArrayList<Shop>()
+                val shopNameList = ArrayList<Shop>()
                 try {
                     if (list != null) {
                         for(shopname in list){
-                            var shop = Shop(shopname, "www.$shopname.co.za")
+                            val shop = Shop(shopname, "www.$shopname.co.za")
                             shopNameList.add(shop)
                             viewModel.add(shop)
                         }
@@ -201,6 +205,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onFail(message: String?) {
                 Log.e(TAG, "Failed to get shops: $message")
+                toast(message.toString())
             }
 
         })
@@ -211,7 +216,7 @@ class MainActivity : AppCompatActivity() {
      * Create Mall Spinner
      */
     fun createMallSpinner(list: ArrayList<String>){
-        var adapter = ArrayAdapter( applicationContext, android.R.layout.simple_spinner_item, list)
+        val adapter = ArrayAdapter( applicationContext, android.R.layout.simple_spinner_item, list)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         mallSpinner.adapter = adapter
         mallSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -237,6 +242,7 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onFail(message: String?) {
                         Log.i(TAG, message!!)
+                        toast(message.toString())
                         progressDialog!!.hide()
                     }
 
