@@ -14,11 +14,13 @@ import it.ads.app.city_explorer_sdk.interfaces.CityExploreCallBack
 import it.ads.app.city_explorer_sdk.network.CheckNetwork
 import it.ads.app.cityexplorerkt.R
 import androidx.lifecycle.Observer
-import it.ads.app.cityexplorerkt.adapters.ShopsAdapter
+import androidx.recyclerview.widget.RecyclerView
+import it.ads.app.cityexplorerkt.adapters.ShopRecyclerAdapter
 import it.ads.app.cityexplorerkt.models.Shop
 import it.ads.app.cityexplorerkt.viewmodels.ShopViewModel
 import it.ads.app.cityexplorerkt.viewmodelsfactories.ShopViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.Exception
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -28,9 +30,9 @@ class MainActivity : AppCompatActivity() {
     //these switches will prevent spinners from automatically selecting first option on load
     var spinnerMallSwitch = 1
     var spinnerCitySwitch = 1
-    var spinnerShopSwitch = 1
-    private lateinit var listShops: MutableList<Shop>
-    private lateinit var adapterShop: ShopsAdapter
+    private var viewManager = LinearLayoutManager(this)
+    private lateinit var viewModel: ShopViewModel
+    private lateinit var recycler_main: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -42,12 +44,11 @@ class MainActivity : AppCompatActivity() {
         progressDialog!!.setTitle("Please Wait")
         progressDialog!!.setMessage("Loading ...")
 
-        recycler_main.layoutManager = LinearLayoutManager(this@MainActivity)
-        listShops = mutableListOf<Shop>()
-        adapterShop = ShopsAdapter(this,
-            listShops
-        )
-        recycler_main.adapter = adapterShop
+        //setup recycle view and model
+        recycler_main = findViewById(R.id.recycler_main)
+        viewModel = ViewModelProviders.of(this,ShopViewModelFactory()).get(ShopViewModel::class.java)
+        initialiseAdapter()
+
 
         //check if there is network
         var hasNetwork = CheckNetwork(applicationContext)
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
             progressDialog!!.show()
             cityExplorer.getCities(object : CityExploreCallBack{
                 override fun onSuccess(list: ArrayList<String>?) {
+                    viewModel.clear()
                     //SDK has returned a successfull result. Now you can use the list.
                     //in this case, im using list to create another spinner, to display a list
                     //of malls in the city
@@ -84,8 +86,6 @@ class MainActivity : AppCompatActivity() {
                                     override fun onSuccess(list: ArrayList<String>?) {
                                         Log.i(TAG, list!!.get(0))
                                         spinnerMallSwitch = 1 //reset switches
-                                        spinnerShopSwitch = 1
-                                        shopSpinner.adapter = null //remove items in lists
                                         mallSpinner.adapter = null
                                         createMallSpinner(list)
                                         progressDialog!!.hide()
@@ -115,20 +115,55 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun initialiseAdapter(){
+        recycler_main.layoutManager = viewManager
+        observeData()
+    }
+
+    fun observeData(){
+        viewModel.mutableList.observe(this, Observer{
+            Log.i("data",it.toString())
+            recycler_main.adapter= ShopRecyclerAdapter(viewModel, it, this)
+        })
+    }
+
     /**
      * Create a list of shops
      */
     fun createShopsList(mallName: String){
-        Log.i(TAG, "Setting shop list for $mallName")
 
-        Log.i(TAG, listShops.toString())
-        val shopViewModel = ViewModelProviders.of(this,ShopViewModelFactory(applicationContext, mallName)).get(ShopViewModel::class.java)
-        shopViewModel.getData().observe(this,
-            Observer<ArrayList<Shop>> { t ->
-                listShops.clear()
-                t?.let { listShops.addAll(it) }
-                adapterShop!!.notifyDataSetChanged()
-            })
+        //clear previous list
+        viewModel.clear()
+
+        val cityExplore = CityExplore(applicationContext)
+        cityExplore.getShops(mallName, object : CityExploreCallBack{
+            override fun onSuccess(list: ArrayList<String>?) {
+
+                var shopNameList = ArrayList<Shop>()
+                try {
+                    if (list != null) {
+                        for(shopname in list){
+                            var shop = Shop(shopname, "www.$shopname.co.za")
+                            shopNameList.add(shop)
+                            viewModel.add(shop)
+                        }
+                        Log.i(TAG, "Shop list: $shopNameList")
+                    }
+
+                }catch (e: Exception){
+                    Log.e(TAG,e.toString())
+                }
+
+                Log.i(TAG, "response success from SDK. list: "+list!!.toString())
+            }
+
+            override fun onFail(message: String?) {
+                Log.e(TAG, "Failed to get shops: $message")
+            }
+
+        })
+
+        recycler_main.adapter?.notifyDataSetChanged()
     }
 
     /**
@@ -154,7 +189,7 @@ class MainActivity : AppCompatActivity() {
                 cityExplorer.getShops(mallName, object : CityExploreCallBack{
                     override fun onSuccess(list: ArrayList<String>?) {
                         Log.i(TAG, "Got shops")
-                        createShopSpinner(list!!)
+//                        createShopSpinner(list!!)
                         createShopsList(mallName)
                         progressDialog!!.hide()
                     }
@@ -166,32 +201,6 @@ class MainActivity : AppCompatActivity() {
 
                 })
 
-            }
-
-        }
-
-    }
-
-    /**
-     * Create Shop Spinner
-     */
-    fun createShopSpinner(list: ArrayList<String>){
-        var adapter = ArrayAdapter( applicationContext, android.R.layout.simple_spinner_item, list)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        shopSpinner.adapter = adapter
-        shopSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-
-                if (spinnerShopSwitch == 1) {
-                    spinnerShopSwitch = 0
-                    return
-                }
-                val shopName = parent!!.getItemAtPosition(position).toString()
-                Log.i("city", shopName)
             }
 
         }

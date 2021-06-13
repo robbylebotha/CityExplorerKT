@@ -1,14 +1,15 @@
 package it.ads.app.cityexplorerkt.viewmodelsfactories
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import it.ads.app.cityexplorerkt.viewmodels.ShopViewModel
 
-class ShopViewModelFactory(private val context: Context, private val mallName: String) : ViewModelProvider.NewInstanceFactory() {
-
+class ShopViewModelFactory(): ViewModelProvider.Factory{
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return ShopViewModel(context, mallName) as T
+        if(modelClass.isAssignableFrom(ShopViewModel::class.java)){
+            return ShopViewModel() as T
+        }
+        throw IllegalArgumentException ("UnknownViewModel")
     }
 
 }

@@ -42,14 +42,17 @@
             android:id="@+id/textView3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_shop" />
+            android:text="@string/label_shop"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:textSize="20sp"/>
 
-        <Spinner
-            android:id = "@+id/shopSpinner"
-            android:layout_width = "match_parent"
-            android:layout_height = "wrap_content"
-            android:prompt = "@string/label_shop"
-            />
+<!--        <Spinner-->
+<!--            android:id = "@+id/shopSpinner"-->
+<!--            android:layout_width = "match_parent"-->
+<!--            android:layout_height = "wrap_content"-->
+<!--            android:prompt = "@string/label_shop"-->
+<!--            />-->
 
 
         <androidx.recyclerview.widget.RecyclerView
