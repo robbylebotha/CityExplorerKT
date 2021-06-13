@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //Build dialog
+        //Build progress dialog
         //TODO stop using depracated progress dialog
         progressDialog = ProgressDialog(this)
         progressDialog!!.setTitle("Please Wait")
@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
 
     fun observeData(){
         viewModel.mutableList.observe(this, Observer{
-            Log.i("data",it.toString())
+            Log.i(TAG,it.toString())
             recycler_main.adapter= ShopRecyclerAdapter(viewModel, it, this)
         })
     }
