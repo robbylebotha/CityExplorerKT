@@ -1,6 +1,8 @@
 package it.ads.app.cityexplorerkt.adapters
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,17 +13,17 @@ import it.ads.app.cityexplorerkt.models.Shop
 import it.ads.app.cityexplorerkt.viewmodels.ShopViewModel
 import kotlinx.android.synthetic.main.shop_row.view.*
 
-class ShopRecyclerAdapter(val viewModel: ShopViewModel, val arrayList: ArrayList<Shop>, val context: Context): RecyclerView.Adapter<ShopRecyclerAdapter.NotesViewHolder>() {
+class ShopRecyclerAdapter(val viewModel: ShopViewModel, val arrayList: ArrayList<Shop>, val context: Context): RecyclerView.Adapter<ShopRecyclerAdapter.ShopViewHolder>() {
     private var lastPosition = -1
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): ShopRecyclerAdapter.NotesViewHolder {
+    ): ShopRecyclerAdapter.ShopViewHolder {
         var root = LayoutInflater.from(parent.context).inflate(R.layout.shop_row,parent,false)
-        return NotesViewHolder(root)
+        return ShopViewHolder(root)
     }
 
-    override fun onBindViewHolder(holder: ShopRecyclerAdapter.NotesViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ShopRecyclerAdapter.ShopViewHolder, position: Int) {
         holder.bind(arrayList.get(position))
         //some custom animation because lists are boring.
         val animation = AnimationUtils.loadAnimation(
@@ -30,6 +32,16 @@ class ShopRecyclerAdapter(val viewModel: ShopViewModel, val arrayList: ArrayList
         )
         holder.itemView.startAnimation(animation)
         lastPosition = position
+
+        holder.itemView.setOnClickListener(View.OnClickListener {
+            //direct user to shop just for added fun and practice
+            val gmmIntentUri =
+                Uri.parse("geo:0,0?q= ${holder.itemView.shop_name.text}")
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            mapIntent.setPackage("com.google.android.apps.maps")
+            context.startActivity(mapIntent)
+
+        })
     }
 
     override fun getItemCount(): Int {
@@ -38,7 +50,7 @@ class ShopRecyclerAdapter(val viewModel: ShopViewModel, val arrayList: ArrayList
     }
 
 
-    inner  class NotesViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    inner  class ShopViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         fun bind(shop: Shop){
             view.shop_name.text = shop.name
             view.show_website.text = shop.website?.toLowerCase()
