@@ -12,7 +12,7 @@ to get information about a city, malls and its shops.
 
 #### Library Features
 
- - Request a list of cities of specific city by name. 
+ - Request a list of cities or specific city by name. 
  - Request a list of malls in a city by city name, or a particular mall in a city.
  - Request a list of shops in a mall, or specific shop in a mall.
  - Request a list of shops in a city.
@@ -23,5 +23,7 @@ to get information about a city, malls and its shops.
  - When clicking a city, user can see a list of Malls in the city.
  - When clicking on a mall, user can see a list of shops in the mall.
  - Note: When selecting a city, a list of all shops available in the city, is loaded.
+ - User can now click on a shop in the lost and Google will
+Direct you to the shop.
 
 
