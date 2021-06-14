@@ -23,7 +23,7 @@ to get information about a city, malls and its shops.
  - When clicking a city, user can see a list of Malls in the city.
  - When clicking on a mall, user can see a list of shops in the mall.
  - Note: When selecting a city, a list of all shops available in the city, is loaded.
- - User can now click on a shop in the lost and Google will
+ - User can now click on a shop in the list and Google will
 Direct you to the shop.
 
 
