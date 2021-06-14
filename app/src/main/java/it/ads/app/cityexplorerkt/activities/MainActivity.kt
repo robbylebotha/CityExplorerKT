@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity() {
                 try {
                     if (list != null) {
                         for(shopname in list){
-                            val shop = Shop(shopname, "www.$shopname.co.za")
+                            val shop = Shop("$shopname - $mallName", "www.$shopname.co.za")
                             shopNameList.add(shop)
                             viewModel.add(shop)
                         }
